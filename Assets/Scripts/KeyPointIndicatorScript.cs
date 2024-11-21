@@ -3,35 +3,21 @@ using UnityEngine.UI;
 
 public class KeyPointIndicatorScript : MonoBehaviour
 {
-    [SerializeField]
+    [SerializeField] 
     private float keyTimeout = 5.0f;
-
+    private float activeTime;
     private Image indicator;
     private GameObject content;
-    private KeyPointScript parentScript;   // ~ local state
-    private float activeTime;
+    private KeyPointScript parentScript;
 
     void Start()
     {
-        content = this
-            .transform
-            .Find("Content")
-            .gameObject;
-        content.SetActive(false);
-
-        indicator = this
-            .transform
-            .Find("Content/Indicator")
-            .gameObject
-            .GetComponent<Image>();
-
-        parentScript = this
-            .transform
-            .parent
-            .GetComponent<KeyPointScript>();
+        parentScript = transform.parent.GetComponent<KeyPointScript>();
         parentScript.isInTime = true;
+        indicator = transform.Find("Content/Indicator").gameObject.GetComponent<Image>();
+        content = transform.Find("Content").gameObject;
+        content.SetActive(false);
     }
-
     void Update()
     {
         if (content.activeInHierarchy)
@@ -40,28 +26,19 @@ public class KeyPointIndicatorScript : MonoBehaviour
             if (activeTime >= keyTimeout)
             {
                 parentScript.isInTime = false;
-                Destroy(this.gameObject);
+                gameObject.SetActive(false);
             }
             else
             {
                 indicator.fillAmount = (keyTimeout - activeTime) / keyTimeout;
-                indicator.color = new Color(
-                    1 - indicator.fillAmount,
-                    indicator.fillAmount,
-                    0.2f,
-                    0.25f
-                );
+                indicator.color = new Color(1 - indicator.fillAmount, indicator.fillAmount, 0.2f, 0.75f);
             }
         }
-        if(parentScript.isKeyGot)
-        {
-            Destroy(this.gameObject);
-        }
+        if (parentScript.isKeyGot) Destroy(gameObject);
     }
-
     private void OnTriggerEnter(Collider other)
     {
-        if(other.name == "Player")
+        if (other.name == "Player" && !content.activeInHierarchy)
         {
             content.SetActive(true);
             activeTime = 0.0f;
