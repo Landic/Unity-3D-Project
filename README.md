@@ -1,3 +1,11 @@
+HW 21.11:
+
+
+
+https://github.com/user-attachments/assets/f63e5f2e-d218-48ee-ae85-5d231b872325
+
+
+
 HW 14.11, 18.11, 19.11, 20.11:
 
 
