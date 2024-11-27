@@ -8,11 +8,15 @@ public class PlayerScript : MonoBehaviour
 
     private InputAction moveAction;
     private Rigidbody rb;
+    private AudioSource[] audioSources;
 
     private void Start()
     {
         moveAction = InputSystem.actions.FindAction("Move");
         rb = GetComponent<Rigidbody>();
+        audioSources = GetComponents<AudioSource>();
+        GameState.Subscribe(nameof(GameState.effectsVolume), OnEffectsVolumeChanged);
+        OnEffectsVolumeChanged();
     }
 
     void Update()
@@ -27,5 +31,22 @@ public class PlayerScript : MonoBehaviour
             correctedForward * moveValue.y
             );
         rb.AddForce(forceValue);
+    }
+
+    private void OnEffectsVolumeChanged()
+    {
+        foreach (var audioSource in audioSources) audioSource.volume = GameState.effectsVolume;
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Wall") && !audioSources[0].isPlaying) 
+            audioSources[0].Play();
+
+    }
+
+    private void OnDestroy()
+    {
+        GameState.Unsubscribe(nameof(GameState.effectsVolume), OnEffectsVolumeChanged);
     }
 }

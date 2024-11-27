@@ -3,36 +3,30 @@ using UnityEngine.InputSystem;
 
 public class CameraScript : MonoBehaviour
 {
-    [SerializeField]
-    private GameObject player;
-    [SerializeField]
-    private Transform fpvTransform;
-
+    [SerializeField] private GameObject player;
+    [SerializeField] private Transform fpvTransform;
     private InputAction lookAction;
     private Vector3 c;
     private bool fpv = true;
-    private float mX, mY;
-    private float sensitivityH = 10.0f, sensitivityV = 5.0f, sensitivityW = 0.1f;
-    private float fpvRange = 0.6f;
+    private float mX, mY, sensitivityX = 3.5f, sensitivityY = 3.5f, sensitivityW = 0.35f, fpvRange = 0.6f, maxDistance = 5.0f;
 
     void Start()
     {
-        c = this.transform.position - player.transform.position;
-        mX = this.transform.eulerAngles.y;
-        mY = this.transform.eulerAngles.x;
+        c = transform.position - player.transform.position;
+        mX = transform.eulerAngles.y;
+        mY = transform.eulerAngles.x;
         lookAction = InputSystem.actions.FindAction("Look");
     }
-
-    private void Update()
+    void Update()
     {
         if (fpv)
-        { 
-            Vector2 mouseWheel = Input.mouseScrollDelta;
+        {
+            Vector2 mouseWheel = Input.mouseScrollDelta * Time.timeScale;
             if (mouseWheel.y != 0)
             {
                 if (c.magnitude > fpvRange)
                 {
-                    c = c * (1 - mouseWheel.y * sensitivityW);
+                    c = c * (1 + mouseWheel.y * sensitivityW);
                     if (c.magnitude < fpvRange)
                     {
                         c = c * 0.01f;
@@ -41,40 +35,33 @@ public class CameraScript : MonoBehaviour
                 }
                 else
                 {
-                    if (mouseWheel.y < 0)
+                    if (mouseWheel.y > 0)
                     {
-                        c = c / c.magnitude * fpvRange * 1.01f;
+                        c = c / c.magnitude * 1.1f;
                         GameState.isFpv = false;
                     }
                 }
+                if (c.magnitude > maxDistance) c = c.normalized * maxDistance;
             }
 
             Vector2 lookValue = lookAction.ReadValue<Vector2>() * Time.deltaTime;
-            mX += lookValue.x * sensitivityH;        // Input.GetAxis("Mouse X");
-            float my = -lookValue.y * sensitivityV;  // -Input.GetAxis("Mouse Y");
-            if (0 <= mY + my && mY + my <= 75)
-            {
-                mY += my;
-            }
-            this.transform.eulerAngles = new Vector3(mY, mX, 0);
+            mX += lookValue.x * sensitivityX;
+            float my = -lookValue.y * sensitivityY;
+            if (0 <= mY + my && mY + my <= 50) mY += my;
+            transform.eulerAngles = new Vector3(mY, mX, 0);
         }
-        if (Input.GetKeyDown(KeyCode.Tab))
+        if (Input.GetKeyDown(KeyCode.Tab) && Time.timeScale != 0.0f)
         {
             fpv = !fpv;
             if (!fpv)
             {
-                this.transform.position = fpvTransform.position;
-                this.transform.rotation = fpvTransform.rotation;
+                transform.position = fpvTransform.position;
+                transform.rotation = fpvTransform.rotation;
             }
         }
     }
-
     void LateUpdate()
     {
-        if (fpv)
-        {
-            this.transform.position = Quaternion.Euler(0, mX, 0) * c +
-                player.transform.position;
-        }
+        if (fpv) transform.position = Quaternion.Euler(0, mX, 0) * c + player.transform.position;
     }
 }
