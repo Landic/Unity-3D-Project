@@ -15,7 +15,7 @@ public class PlayerScript : MonoBehaviour
         moveAction = InputSystem.actions.FindAction("Move");
         rb = GetComponent<Rigidbody>();
         audioSources = GetComponents<AudioSource>();
-        GameState.Subscribe(nameof(GameState.effectsVolume), OnEffectsVolumeChanged);
+        GameState.Subscribe( OnEffectsVolumeChanged,nameof(GameState.effectsVolume), nameof(GameState.isMuted));
         OnEffectsVolumeChanged();
     }
 
@@ -47,6 +47,6 @@ public class PlayerScript : MonoBehaviour
 
     private void OnDestroy()
     {
-        GameState.Unsubscribe(nameof(GameState.effectsVolume), OnEffectsVolumeChanged);
+        GameState.Unsubscribe(OnEffectsVolumeChanged, nameof(GameState.effectsVolume), nameof(GameState.isMuted));
     }
 }

@@ -6,7 +6,10 @@ public class SettingsScript : MonoBehaviour
 {
     private GameObject content;
     private Slider effectsSlider, ambientSlider;
-    public Toggle myToggle;
+    private Slider sensXSlider, sensYSlider;
+    private Toggle muteAllToggle;
+
+    private float defaultAmbientVolume;
 
     void Start()
     {
@@ -15,10 +18,33 @@ public class SettingsScript : MonoBehaviour
         effectsSlider = contentTransform.Find("EffectsSlider").GetComponent<Slider>();
         GameState.effectsVolume = effectsSlider.value;
         ambientSlider = transform.Find("Content").Find("AmbientSlider").GetComponent<Slider>();
-        GameState.ambientVolume = ambientSlider.value;
+        sensXSlider = transform.Find("Content").Find("SensXSlider").GetComponent<Slider>();
+        GameState.sensitivityLookX = sensXSlider.value;
+        sensYSlider = transform.Find("Content").Find("SensYSlider").GetComponent<Slider>();
+        GameState.sensitivityLookY = sensYSlider.value;
+        muteAllToggle = transform.Find("Content").Find("MuteAll").GetComponent<Toggle>();
+        GameState.isMuted = muteAllToggle.isOn;
+
         effectsSlider.onValueChanged.AddListener(OnEffectsVolumeChanged);
         ambientSlider.onValueChanged.AddListener(OnAmbientVolumeChanged);
-        myToggle.onValueChanged.AddListener(OnMuteAllChanged);
+        muteAllToggle.onValueChanged.AddListener(OnMuteAllChanged);
+        sensXSlider.onValueChanged.AddListener(OnSensXChanged);
+        sensYSlider.onValueChanged.AddListener(OnSensYChanged);
+
+        defaultAmbientVolume = ambientSlider.value;
+
+        // Try Restore Saved
+        if (PlayerPrefs.HasKey(nameof(GameState.ambientVolume)))
+        {
+            GameState.ambientVolume = PlayerPrefs.GetFloat(nameof(GameState.ambientVolume));
+            ambientSlider.value = GameState.ambientVolume;
+        }
+
+        else
+        {
+            GameState.ambientVolume = ambientSlider.value;
+        }
+
         Time.timeScale = content.activeInHierarchy ? 0.0f : 1.0f;
     }
 
@@ -31,7 +57,33 @@ public class SettingsScript : MonoBehaviour
             content.SetActive(!content.activeInHierarchy);
         }
     }
-    
+
+    public void onDefaultsButtonClick()
+    {
+        ambientSlider.value = defaultAmbientVolume;
+    }
+
+    public void OnSaveButtonClick()
+    {
+        PlayerPrefs.SetFloat(nameof(GameState.ambientVolume), GameState.ambientVolume);
+        PlayerPrefs.SetFloat(nameof(GameState.effectsVolume), GameState.effectsVolume);
+        PlayerPrefs.SetInt(nameof(GameState.isMuted), GameState.isMuted ? 1 : 0);
+        PlayerPrefs.Save();
+    }
+
+    public void OnSensXChanged(Single value)
+    {
+        Debug.Log("sens x " + value);
+        GameState.sensitivityLookX = value;
+    }
+
+    public void OnSensYChanged(Single value)
+    {
+        Debug.Log("sens y " + value);
+        GameState.sensitivityLookY = value;
+    }
+
+
     public void OnEffectsVolumeChanged(Single value)
     {
         Debug.Log("effects " + value);
