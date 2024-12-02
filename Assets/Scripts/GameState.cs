@@ -1,3 +1,4 @@
+using NUnit.Framework.Internal;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
@@ -10,9 +11,49 @@ public class GameState
     private static readonly Dictionary<string, List<Action>> subscribers = new Dictionary<string, List<Action>>();
     private static Dictionary<string, List<Action<string, object>>> eventListeners = new();
 
+<<<<<<< HEAD
     private static float effectsvolume = 1.0f, ambientvolume = 1.0f, sensitivityx = 3.5f, sensitivityy = 3.5f;
+=======
+>>>>>>> 2e4d346ead394ad923b673a3753f8fb68dd2b106
 
-    private static bool ismuted = false;
+
+    #region sensitivityLook
+
+    private static float _sensitivityLookX = 0.5f;
+
+    public static float sensitivityLookX
+    {
+        get => _sensitivityLookX;
+        set
+        {
+            if (_sensitivityLookX != value)
+            {
+                _sensitivityLookX = value;
+                Notify(nameof(_sensitivityLookX));
+            }
+        }
+    }
+
+    private static float _sensitivityLookY = 0.5f;
+
+    public static float sensitivityLookY
+    {
+        get => _sensitivityLookY;
+        set
+        {
+            if (_sensitivityLookY != value)
+            {
+                _sensitivityLookY = value;
+                Notify(nameof(_sensitivityLookY));
+            }
+        }
+    }
+
+    #endregion
+
+
+    #region effectsVolume
+    private static float EffectsVolume = 1.0f;
     public static float effectsVolume
     {
         get => effectsvolume;
@@ -25,6 +66,11 @@ public class GameState
             }
         }
     }
+
+    #endregion
+
+    #region ambientVolume
+    private static float AmbientVolume = 1.0f;
     public static float ambientVolume
     {
         get => ambientvolume;
@@ -37,6 +83,10 @@ public class GameState
             }
         }
     }
+    #endregion
+
+    #region isMuted
+    private static bool ismuted = false;
     public static bool isMuted
     {
         get => ismuted;
@@ -118,6 +168,10 @@ public class GameState
         }
     }
 
+    #endregion
+
+
+    #region Change Notifier
     private static void Notify(string propertyName)
     {
         if (subscribers.ContainsKey(propertyName)) subscribers[propertyName].ForEach(action => action());
@@ -131,7 +185,19 @@ public class GameState
             subscribers[propertyName].Add(action);
         }
     }
+<<<<<<< HEAD
     public static void Unsubscribe(Action action, params string[] propertyNames)
+=======
+    public static void Subscribe(Action action, params string[] propertyNames)
+    {
+        if (propertyNames.Length == 0) throw new ArgumentException($"{nameof(propertyNames)} must have at least 1 value");
+        foreach(var item in propertyNames)
+        {
+            Subscribe(item, action);
+        }
+    }
+    public static void Unsubscribe(string propertyName, Action action)
+>>>>>>> 2e4d346ead394ad923b673a3753f8fb68dd2b106
     {
         if (propertyNames.Length == 0) throw new ArgumentException($"{nameof(propertyNames)} must have at least 1 value");
         foreach (var propertyName in propertyNames)
@@ -139,4 +205,14 @@ public class GameState
             if (subscribers.ContainsKey(propertyName)) subscribers[propertyName].Remove(action);
         }
     }
+
+    public static void Unsubscribe(Action action, params string[] propertyNames)
+    {
+        if (propertyNames.Length == 0) throw new ArgumentException($"{nameof(propertyNames)} must have at least 1 value");
+        foreach (var item in propertyNames)
+        {
+            Unsubscribe(item, action);
+        }
+    }
+    #endregion
 }

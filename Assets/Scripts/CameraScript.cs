@@ -8,7 +8,7 @@ public class CameraScript : MonoBehaviour
     private InputAction lookAction;
     private Vector3 c;
     private bool fpv = true;
-    private float mX, mY, sensitivityX = 3.5f, sensitivityY = 3.5f, sensitivityW = 0.35f, fpvRange = 0.6f, maxDistance = 5.0f;
+    private float mX, mY, sensitivityX = 10f, sensitivityY = 3.5f, sensitivityW = 0.35f, fpvRange = 0.6f, maxDistance = 5.0f;
 
     void Start()
     {
@@ -17,7 +17,10 @@ public class CameraScript : MonoBehaviour
         mY = transform.eulerAngles.x;
         lookAction = InputSystem.actions.FindAction("Look");
         GameState.Subscribe(OnSensitivityChanged, nameof(GameState.sensitivityLookX), nameof(GameState.sensitivityLookY));
+<<<<<<< HEAD
         OnSensitivityChanged();
+=======
+>>>>>>> 2e4d346ead394ad923b673a3753f8fb68dd2b106
     }
     void Update()
     {
@@ -66,10 +69,24 @@ public class CameraScript : MonoBehaviour
     {
         if (fpv) transform.position = Quaternion.Euler(0, mX, 0) * c + player.transform.position;
     }
+<<<<<<< HEAD
     private void OnSensitivityChanged()
     {
         sensitivityX = Mathf.Lerp(1, 20, GameState.sensitivityLookX);
         sensitivityY = Mathf.Lerp(1, 20, GameState.sensitivityLookY);
     }
     private void OnDestroy() => GameState.Unsubscribe(OnSensitivityChanged, nameof(GameState.sensitivityLookX), nameof(GameState.sensitivityLookY));
+=======
+
+    private void OnSensitivityChanged()
+    {
+        sensitivityX = Mathf.Lerp(1,20,GameState.sensitivityLookX);
+        sensitivityY = Mathf.Lerp(1, 20, GameState.sensitivityLookY);
+    }
+
+    private void OnDestroy()
+    {
+        GameState.Unsubscribe(OnSensitivityChanged, nameof(GameState.sensitivityLookX), nameof(GameState.sensitivityLookY));
+    }
+>>>>>>> 2e4d346ead394ad923b673a3753f8fb68dd2b106
 }

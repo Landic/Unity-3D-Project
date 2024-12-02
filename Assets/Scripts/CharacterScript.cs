@@ -22,9 +22,16 @@ public class CharacterScript : MonoBehaviour
     {
         ambientSound.volume = GameState.isMuted ? 0.0f : GameState.ambientVolume;
     }
+<<<<<<< HEAD
     private void OnMuteChanged()
     {
         ambientSound.volume = GameState.isMuted ? 0.0f : GameState.ambientVolume;
     }
     private void OnDestroy() => GameState.Unsubscribe(OnAmbientVolumeChanged, nameof(GameState.ambientVolume), nameof(GameState.isMuted));
+=======
+    private void OnDestroy()
+    {
+        GameState.Unsubscribe(OnAmbientVolumeChanged, nameof(GameState.ambientVolume), nameof(GameState.isMuted));
+    }
+>>>>>>> 2e4d346ead394ad923b673a3753f8fb68dd2b106
 }
