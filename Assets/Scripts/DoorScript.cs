@@ -5,16 +5,15 @@ public class DoorScript : MonoBehaviour {
     private bool isOpen, isLocked;
     private float inTime = 2.0f, OutTime = 20.0f, openTime;
 
-    private AudioSource hitSound;
-    private AudioSource openSound;
+    private AudioSource[] audioSources;
 
     void Start() {
         isLocked = true;
         isOpen = false;
         openTime = 0.0f;
-        AudioSource[] audioSource = GetComponents<AudioSource>();
-        hitSound = audioSource[0];
-        openSound = audioSource[1];
+        audioSources = GetComponents<AudioSource>();
+        GameState.Subscribe(OnEffectsVolumeChanged, nameof(GameState.effectsVolume));
+        OnEffectsVolumeChanged();
     }
     void Update() {
         if (openTime > 0.0f && !isLocked && !isOpen) {
@@ -30,12 +29,17 @@ public class DoorScript : MonoBehaviour {
             openTime = isInTime ? inTime : OutTime;
             isLocked = false;
             ToastScript.ShowToast("Дверь открыта " + (isInTime ? "вовремя" : "не вовремя"));
-            openSound.Play();
+            (isInTime ? audioSources[1] : audioSources[2]).Play();
         }
         else
         {
             ToastScript.ShowToast("Для открытия двери необходим ключ \"1\"!");
-            hitSound.Play();
+            audioSources[0].Play();
         }
     }
+    public void OnEffectsVolumeChanged()
+    {
+        foreach (var audioSource in audioSources) audioSource.volume = GameState.isMuted ? 0.0f : GameState.effectsVolume;
+    }
+    private void OnDestroy() => GameState.Unsubscribe(OnEffectsVolumeChanged, nameof(GameState.effectsVolume));
 }

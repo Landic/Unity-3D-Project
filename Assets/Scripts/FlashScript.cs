@@ -6,15 +6,16 @@ public class FlashScript : MonoBehaviour
     //private GameObject character;
     private Rigidbody playerRb;
     [SerializeField]
-    private float chargeTimeout = 5.0f;
+    private float chargeTimeout = 5.0f, flashCharge;
     private Light spotLight;
+
 
     void Start()
     {
         //character = GameObject.Find("Character");
         playerRb = GameObject.Find("CharacterPlayer").GetComponent<Rigidbody>();
         spotLight = GetComponent<Light>();
-        GameState.flashCharge = 1.0f;
+        GameState.SubscribeTrigger(BatteryTriggerListener, "Battery");
     }
 
     void Update()
@@ -39,4 +40,10 @@ public class FlashScript : MonoBehaviour
                 this.transform.forward = playerRb.linearVelocity.normalized;
         }
     }
+
+    private void BatteryTriggerListener(string type, object payload)
+    {
+        if (type == "Battery") flashCharge += (float)payload;
+    }
+    private void OnDestroy() => GameState.UnsubscribeTrigger(BatteryTriggerListener, "Battery");
 }
